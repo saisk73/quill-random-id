@@ -1,22 +1,26 @@
+import {v4 as UUID4} from "uuid"
 const Quill = require("quill")
 const Parchment = Quill.import('parchment');
-const Inline = Quill.import('blots/inline');
-class Track extends Inline {
+const Block = Quill.import('blots/block');
+// const Block = Quill.import('blots/inline');
+class Track extends Block {
+    // constructor(node) {
+    //     super(node)
+    //     node.setAttribute("id", UUID4())
+    // }
     static create(value) {
-        if (!value) return super.create(false);
-
-        let node = super.create(value);
+        let id = value.id
+        let element = document.getElementById(value.uid)
         console.log(value)
-        node.setAttribute('data-name', value.name);
-        node.setAttribute('data-uid', value.uid);
-        node.setAttribute('data-cid', value.cid);
-
-        if(value.group === 1) {
-            node.classList.add('highlight-1');
+        console.log(element)
+        if (!value) return super.create(false);
+        let node = super.create(value);
+        if(element != null) {
+            node.setAttribute('id', UUID4())
+        } else {
+            node.setAttribute('id', value.uid)
         }
-        else if (value.group === 2) {
-            node.classList.add('highlight-2');
-        }
+        
         // else if...
 
         return node;
@@ -25,31 +29,20 @@ class Track extends Inline {
     // is what causes the Delta returned as content by 
     // Quill to have the desired information.
     static formats(domNode) {
-        if (domNode.getAttribute('data-cid') &&
-            domNode.getAttribute('data-uid') &&
-            domNode.getAttribute('data-name')) {
+        if (domNode.getAttribute('id')) {
             return { 
-                'name': domNode.getAttribute('data-name') , 
-                'cid': domNode.getAttribute('data-cid') ,
-                'uid': domNode.getAttribute('data-uid')
+                'uid': domNode.getAttribute('id')
             };
         }
         else {
-            return super.formats(domNode);
+            return {
+                'uid': UUID4()
+            };
         }
     }
-
-    formats() {
-        // Returns the formats list this class (this format).
-        let formats = super.formats();
-
-        // Inline has the domNode reference, which in this 
-        // case represents the SPAN, result defined in tagName.
-        formats['track'] = Track.formats(this.domNode);
-
-        // In the code above, it is as if we are adding this new format.
-        return formats;
-    }
 }
-Track.tagName = 'P';
+Block.tagName = 'div'
+Track.tagName = 'div';
 Track.blotName = 'track';
+
+export default Track;

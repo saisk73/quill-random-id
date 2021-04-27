@@ -2,7 +2,7 @@ import React, {component} from "react"
 import ReactQuill, { Quill, Mixin, Toolbar }  from 'react-quill'; // ES6
 import 'react-quill/dist/quill.snow.css';
 import Track from "./plugin"
-Quill.register('formats/track', Track);
+Quill.register('formats/block', Track);
 // Quill.register(RetainClass)
 class App extends React.Component {
   constructor(props) {
@@ -10,6 +10,7 @@ class App extends React.Component {
     this.state = { text: ''}
     this.handleChange = this.handleChange.bind(this)
     this.getData = this.getData.bind(this)
+    this.saveData = this.saveData.bind(this)
     // ref
     this.quillRef = null;      // Quill instance
     this.reactQuillRef = null; // ReactQuill component
@@ -33,16 +34,28 @@ class App extends React.Component {
   }
 
   getData() {
-    console.log(this.state.text)
+    let deltas = localStorage.getItem("deltas")
+    deltas = JSON.parse(deltas)
+    this.quillRef.setContents(deltas)
+  }
+  
+  saveData() {
+    let deltas = this.quillRef.getContents()
+    console.log(deltas)
+    deltas = JSON.stringify(deltas)
+    localStorage.setItem("deltas", deltas)
   }
  
   render() {
     return (
       <div>
-        <button className="" onClick={this.getData}>Get Data</button>
+        <button className="" onClick={this.getData}>GET</button>
+        <button className="" onClick={this.saveData}>SAVE</button>
+        
         <ReactQuill 
           ref={(el) => { this.reactQuillRef = el }}
           value={this.state.text}
+          modules={App.modules}
           onChange={this.handleChange} />
       </div>
     )
